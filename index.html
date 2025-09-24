@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta con Flores Amarillas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fce4ec;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            height: 600px;
+            perspective: 1000px;
+        }
+
+        .card-front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-origin: top;
+            transition: transform 1s ease-in-out;
+            transform: rotateX(0deg);
+            backface-visibility: hidden;
+            z-index: 2;
+        }
+
+        .card-front.open {
+            transform: rotateX(-180deg);
+        }
+
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #ffebee, #ffcdd2);
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transform: rotateX(0deg);
+            backface-visibility: hidden;
+        }
+        
+        .card-front .cover {
+            background-color: #880e4f;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            transition: transform 1s ease-in-out;
+        }
+
+        .card-back .message {
+            text-align: center;
+            font-size: 1.25rem;
+            color: #4a148c;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        }
+
+        .card-back .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .flowers-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            background: radial-gradient(circle at bottom, #fffde7, #fff9c4);
+        }
+
+        .flowers-container.show {
+            opacity: 1;
+        }
+
+        .flower {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #ffc107;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: grow 2s ease-out forwards;
+        }
+
+        .flower:before, .flower:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #ffc107;
+            border-radius: 50%;
+        }
+
+        .flower:before {
+            transform: rotate(60deg);
+        }
+
+        .flower:after {
+            transform: rotate(120deg);
+        }
+
+        @keyframes grow {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body ontouchstart="handleTouch()">
+    <div class="container">
+        <!-- La parte frontal de la carta -->
+        <div class="card-front">
+            <div class="cover">
+                <span>Presiona para abrir la carta</span>
+            </div>
+        </div>
+
+        <!-- El contenido de la carta que se muestra al abrir -->
+        <div class="card-back">
+            <h1 class="text-3xl font-bold mb-4 text-[#880e4f]">Para ti</h1>
+            <p class="text-lg text-[#4a148c] italic mb-4">
+                En este día especial, quiero regalarte algo que representa la luz que eres en mi vida.
+            </p>
+            <div class="flowers-container" id="flowers-container">
+                <p class="message" id="message">¡Feliz día, con mucho cariño y flores amarillas!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cardFront = document.querySelector('.card-front');
+        const flowersContainer = document.getElementById('flowers-container');
+        const message = document.getElementById('message');
+        const container = document.querySelector('.container');
+
+        let isOpened = false;
+
+        function handleTouch() {
+            if (isOpened) return;
+
+            isOpened = true;
+            cardFront.classList.add('open');
+            flowersContainer.classList.add('show');
+            message.classList.add('show');
+            
+            // Generar flores aleatorias
+            setTimeout(() => {
+                for (let i = 0; i < 50; i++) {
+                    const flower = document.createElement('div');
+                    flower.className = 'flower';
+                    const x = Math.random() * 100;
+                    const y = Math.random() * 100;
+                    const size = Math.random() * 50 + 20;
+                    flower.style.left = `${x}%`;
+                    flower.style.top = `${y}%`;
+                    flower.style.width = `${size}px`;
+                    flower.style.height = `${size}px`;
+                    flowersContainer.appendChild(flower);
+                }
+            }, 1000); // Esperar a que la carta se abra
+        }
+
+        // Detectar si el dispositivo es táctil
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+        
+        // Si es un dispositivo no táctil, cambiar el mensaje y usar 'click'
+        if (!isTouchDevice) {
+            document.querySelector('.cover span').textContent = 'Haz clic para abrir la carta';
+            container.addEventListener('click', handleTouch);
+        }
+    </script>
+</body>
+</html>
